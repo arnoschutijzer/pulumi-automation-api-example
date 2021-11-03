@@ -69,15 +69,29 @@ const run = async () => {
         program: pulumiProgram
     };
 
+    // Make this an env variable 
+    const secretsProvider = "awskms://alias/pulumi-secrets-encryption-key"
+
     // create (or select if one already exists) a stack that uses our inline program
-    const stack = await LocalWorkspace.createOrSelectStack(args);
+    const stack = await LocalWorkspace.createOrSelectStack(args, {
+        secretsProvider,
+        // we should somehow save these stack settings
+        // or alternatively always use the same one
+        stackSettings: {
+            [args.stackName]: {
+                secretsProvider
+            }
+        },
+        workDir: "."
+    });
 
     console.info("successfully initialized stack");
     console.info("installing plugins...");
     await stack.workspace.installPlugin("aws", "v4.0.0");
     console.info("plugins installed");
     console.info("setting up config");
-    await stack.setConfig("aws:region", { value: "us-west-2" });
+    // This can probably be removed?
+    await stack.setConfig("aws:region", { value: "eu-west-1" });
     console.info("config set");
     console.info("refreshing stack...");
     await stack.refresh({ onOutput: console.info });
