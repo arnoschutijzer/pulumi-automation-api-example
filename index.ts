@@ -3,6 +3,7 @@ import { s3 } from "@pulumi/aws";
 import { PolicyDocument } from "@pulumi/aws/iam";
 
 const process = require('process');
+const { KMS_KEY_ALIAS } = process.env;
 
 const args = process.argv.slice(2);
 let destroy = false;
@@ -70,7 +71,7 @@ const run = async () => {
     };
 
     // Make this an env variable 
-    const secretsProvider = "awskms://alias/pulumi-secrets-encryption-key"
+    const secretsProvider = `awskms://alias/${KMS_KEY_ALIAS}`
 
     // create (or select if one already exists) a stack that uses our inline program
     const stack = await LocalWorkspace.createOrSelectStack(args, {
